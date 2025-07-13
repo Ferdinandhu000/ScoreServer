@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Collections;
 import java.util.stream.Collectors;
+import java.util.Map;
 
 public class MainFrame extends JFrame {
     private final GPACalculator calculator;
@@ -51,8 +52,8 @@ public class MainFrame extends JFrame {
     private final JLabel pkuGPALabel;
     private final JLabel dgutGPALabel;
     private final JLabel majorAverageLabel;
-    private final JLabel requiredAverageLabel;
-    private final JLabel electiveAverageLabel;
+    private final JLabel politicalAverageLabel;
+    private final JLabel qualityAverageLabel;
     private final JLabel generalAverageLabel;
     private JTextField searchField;
     private JComboBox<String> semesterFilter;
@@ -91,7 +92,7 @@ public class MainFrame extends JFrame {
         ));
 
         // 创建表格
-        String[] columnNames = {"序号", "课程名称", "学分", "成绩", "是否计入GPA", "学期", "课程类型", "是否专业课"};
+        String[] columnNames = {"序号", "课程名称", "学分", "成绩", "课程类型", "学期", "是否计入GPA"};
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -118,10 +119,9 @@ public class MainFrame extends JFrame {
         courseTable.getColumnModel().getColumn(1).setPreferredWidth(200); // 课程名称
         courseTable.getColumnModel().getColumn(2).setPreferredWidth(80);  // 学分
         courseTable.getColumnModel().getColumn(3).setPreferredWidth(80);  // 成绩
-        courseTable.getColumnModel().getColumn(4).setPreferredWidth(100); // 是否计入GPA
-        courseTable.getColumnModel().getColumn(5).setPreferredWidth(100); // 学期
-        courseTable.getColumnModel().getColumn(6).setPreferredWidth(100); // 课程类型
-        courseTable.getColumnModel().getColumn(7).setPreferredWidth(100); // 是否专业课
+        courseTable.getColumnModel().getColumn(4).setPreferredWidth(100); // 课程类型
+        courseTable.getColumnModel().getColumn(5).setPreferredWidth(60);  // 学期
+        courseTable.getColumnModel().getColumn(6).setPreferredWidth(100); // 是否计入GPA
         
         // 设置表格渲染器
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
@@ -188,7 +188,7 @@ public class MainFrame extends JFrame {
         JPanel rightPanel = new JPanel(new BorderLayout(0, 10));
         rightPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
         
-        // GPA信息面板
+        // 创建GPA信息面板
         JPanel gpaInfoPanel = new JPanel(new GridLayout(5, 1, 5, 5));
         gpaInfoPanel.setBorder(BorderFactory.createTitledBorder(
             BorderFactory.createEtchedBorder(),
@@ -197,49 +197,37 @@ public class MainFrame extends JFrame {
             TitledBorder.TOP,
             new Font("Microsoft YaHei", Font.BOLD, 14)
         ));
-        
-        Font infoFont = new Font("Microsoft YaHei", Font.PLAIN, 13);
-        averageScoreLabel = new JLabel("加权平均分：0.00");
+
+        averageScoreLabel = new JLabel("总平均分：0.00");
         standardFiveGPALabel = new JLabel("标准五分制GPA：0.00");
         standardFourGPALabel = new JLabel("标准四分制GPA：0.00");
-        pkuGPALabel = new JLabel("北大四分制GPA：0.00");
+        pkuGPALabel = new JLabel("北大算法GPA：0.00");
         dgutGPALabel = new JLabel("大工算法GPA：0.00");
-        
-        averageScoreLabel.setFont(infoFont);
-        standardFiveGPALabel.setFont(infoFont);
-        standardFourGPALabel.setFont(infoFont);
-        pkuGPALabel.setFont(infoFont);
-        dgutGPALabel.setFont(infoFont);
-        
+
         gpaInfoPanel.add(averageScoreLabel);
         gpaInfoPanel.add(standardFiveGPALabel);
         gpaInfoPanel.add(standardFourGPALabel);
         gpaInfoPanel.add(pkuGPALabel);
         gpaInfoPanel.add(dgutGPALabel);
 
-        // 创建均分信息面板
+        // 创建均分统计面板
         JPanel averagePanel = new JPanel(new GridLayout(4, 1, 5, 5));
         averagePanel.setBorder(BorderFactory.createTitledBorder(
             BorderFactory.createEtchedBorder(),
-            "课程均分统计",
+            "课程分类统计",
             TitledBorder.LEFT,
             TitledBorder.TOP,
             new Font("Microsoft YaHei", Font.BOLD, 14)
         ));
 
-        majorAverageLabel = new JLabel("专业课均分：0.00");
-        requiredAverageLabel = new JLabel("必修课均分：0.00");
-        electiveAverageLabel = new JLabel("选修课均分：0.00");
-        generalAverageLabel = new JLabel("通识课均分：0.00");
-
-        majorAverageLabel.setFont(infoFont);
-        requiredAverageLabel.setFont(infoFont);
-        electiveAverageLabel.setFont(infoFont);
-        generalAverageLabel.setFont(infoFont);
+        majorAverageLabel = new JLabel("专业课程均分：0.00");
+        politicalAverageLabel = new JLabel("思政课程均分：0.00");
+        qualityAverageLabel = new JLabel("素质课程均分：0.00");
+        generalAverageLabel = new JLabel("通识课程均分：0.00");
 
         averagePanel.add(majorAverageLabel);
-        averagePanel.add(requiredAverageLabel);
-        averagePanel.add(electiveAverageLabel);
+        averagePanel.add(politicalAverageLabel);
+        averagePanel.add(qualityAverageLabel);
         averagePanel.add(generalAverageLabel);
 
         // 创建右侧信息面板容器
@@ -382,7 +370,6 @@ public class MainFrame extends JFrame {
         JCheckBox selectedBox = new JCheckBox("", true);
         JTextField semesterField = new JTextField(20);
         JComboBox<Course.CourseType> typeComboBox = new JComboBox<>(Course.CourseType.values());
-        JCheckBox majorCourseBox = new JCheckBox("", false);
 
         // 添加组件
         gbc.gridx = 0; gbc.gridy = 0;
@@ -415,11 +402,6 @@ public class MainFrame extends JFrame {
         gbc.gridx = 1;
         dialog.add(typeComboBox, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 6;
-        dialog.add(new JLabel("是否专业课："), gbc);
-        gbc.gridx = 1;
-        dialog.add(majorCourseBox, gbc);
-
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JButton confirmButton = new JButton("确定");
         JButton cancelButton = new JButton("取消");
@@ -431,7 +413,6 @@ public class MainFrame extends JFrame {
                 double score = Double.parseDouble(scoreField.getText().trim());
                 String semester = semesterField.getText().trim();
                 Course.CourseType type = (Course.CourseType) typeComboBox.getSelectedItem();
-                boolean isMajorCourse = majorCourseBox.isSelected();
 
                 if (name.isEmpty() || semester.isEmpty()) {
                     JOptionPane.showMessageDialog(dialog, "课程名称和学期不能为空！");
@@ -447,7 +428,7 @@ public class MainFrame extends JFrame {
                 }
 
                 calculator.addCourse(new Course(name, credit, score, selectedBox.isSelected(), 
-                    semester, type, isMajorCourse));
+                    semester, type));
                 updateSemesterList();
                 refreshData();
                 dialog.dispose();
@@ -617,20 +598,48 @@ public class MainFrame extends JFrame {
     private void refreshData() {
         // 更新表格
         tableModel.setRowCount(0);
-        for (int i = 0; i < calculator.getCourses().size(); i++) {
-            tableModel.addRow(calculator.getCourses().get(i).toTableRow(i));
+        List<Course> courses = calculator.getCourses();
+        for (int i = 0; i < courses.size(); i++) {
+            Course course = courses.get(i);
+            Object[] rowData = {
+                i + 1,
+                course.getName(),
+                course.getCredit(),
+                course.getScore(),
+                course.getCourseType().getDisplayName(),
+                course.getSemester(),
+                course.isSelected() ? "是" : "否"
+            };
+            tableModel.addRow(rowData);
         }
 
         // 更新GPA信息
-        averageScoreLabel.setText(String.format("加权平均分：%.2f", calculator.calculateAverageScore()));
-        standardFiveGPALabel.setText(String.format("标准五分制GPA：%.2f", calculator.calculateStandardFiveGPA()));
-        standardFourGPALabel.setText(String.format("标准四分制GPA：%.2f", calculator.calculateStandardFourGPA()));
-        pkuGPALabel.setText(String.format("北大四分制GPA：%.2f", calculator.calculatePKUGPA()));
-        dgutGPALabel.setText(String.format("大工算法GPA：%.2f", calculator.calculateDGUTGPA()));
-        majorAverageLabel.setText(String.format("专业课均分：%.2f", calculator.calculateMajorAverageScore()));
-        requiredAverageLabel.setText(String.format("必修课均分：%.2f", calculator.calculateRequiredAverageScore()));
-        electiveAverageLabel.setText(String.format("选修课均分：%.2f", calculator.calculateElectiveAverageScore()));
-        generalAverageLabel.setText(String.format("通识课均分：%.2f", calculator.calculateGeneralAverageScore()));
+        List<Course> selectedCourses = calculator.getCourses().stream()
+                .filter(Course::isSelected)
+                .collect(Collectors.toList());
+
+        double averageScore = calculateAverageScore(selectedCourses);
+        double standardFiveGPA = calculateStandardFiveGPA(selectedCourses);
+        double standardFourGPA = calculateStandardFourGPA(selectedCourses);
+        double pkuGPA = calculatePKUGPA(selectedCourses);
+        double dgutGPA = calculateDGUTGPA(selectedCourses);
+
+        averageScoreLabel.setText(String.format("总平均分：%.2f", averageScore));
+        standardFiveGPALabel.setText(String.format("标准五分制GPA：%.2f", standardFiveGPA));
+        standardFourGPALabel.setText(String.format("标准四分制GPA：%.2f", standardFourGPA));
+        pkuGPALabel.setText(String.format("北大算法GPA：%.2f", pkuGPA));
+        dgutGPALabel.setText(String.format("大工算法GPA：%.2f", dgutGPA));
+
+        // 更新课程分类统计
+        double majorAverage = calculator.calculateMajorAverageScore();
+        double politicalAverage = calculator.calculatePoliticalAverageScore();
+        double qualityAverage = calculator.calculateQualityAverageScore();
+        double generalAverage = calculator.calculateGeneralAverageScore();
+
+        majorAverageLabel.setText(String.format("专业课程均分：%.2f", majorAverage));
+        politicalAverageLabel.setText(String.format("思政课程均分：%.2f", politicalAverage));
+        qualityAverageLabel.setText(String.format("素质课程均分：%.2f", qualityAverage));
+        generalAverageLabel.setText(String.format("通识课程均分：%.2f", generalAverage));
 
         // 更新图表
         updateChart();
@@ -705,6 +714,94 @@ public class MainFrame extends JFrame {
         chartPanel.add(panel);
         chartPanel.revalidate();
         chartPanel.repaint();
+    }
+
+    private double calculateAverageScore(List<Course> courses) {
+        if (courses.isEmpty()) return 0.0;
+        double totalScore = 0.0;
+        double totalCredit = 0.0;
+        for (Course course : courses) {
+            totalScore += course.getScore() * course.getCredit();
+            totalCredit += course.getCredit();
+        }
+        return totalCredit == 0 ? 0 : totalScore / totalCredit;
+    }
+
+    private double calculateStandardFiveGPA(List<Course> courses) {
+        if (courses.isEmpty()) return 0.0;
+        double totalGPA = 0.0;
+        double totalCredit = 0.0;
+        for (Course course : courses) {
+            if (!course.isSelected()) continue;
+            double score = course.getScore();
+            double gpa;
+            if (score >= 90) gpa = 5.0;
+            else if (score >= 80) gpa = 4.0;
+            else if (score >= 70) gpa = 3.0;
+            else if (score >= 60) gpa = 2.0;
+            else gpa = 1.0;
+            totalGPA += gpa * course.getCredit();
+            totalCredit += course.getCredit();
+        }
+        return totalCredit == 0 ? 0 : totalGPA / totalCredit;
+    }
+
+    private double calculateStandardFourGPA(List<Course> courses) {
+        if (courses.isEmpty()) return 0.0;
+        double totalGPA = 0.0;
+        double totalCredit = 0.0;
+        for (Course course : courses) {
+            if (!course.isSelected()) continue;
+            double score = course.getScore();
+            double gpa;
+            if (score >= 90) gpa = 4.0;
+            else if (score >= 80) gpa = 3.0;
+            else if (score >= 70) gpa = 2.0;
+            else if (score >= 60) gpa = 1.0;
+            else gpa = 0.0;
+            totalGPA += gpa * course.getCredit();
+            totalCredit += course.getCredit();
+        }
+        return totalCredit == 0 ? 0 : totalGPA / totalCredit;
+    }
+
+    private double calculatePKUGPA(List<Course> courses) {
+        if (courses.isEmpty()) return 0.0;
+        double totalGPA = 0.0;
+        double totalCredit = 0.0;
+        for (Course course : courses) {
+            if (!course.isSelected()) continue;
+            double score = course.getScore();
+            double gpa;
+            if (score >= 90) gpa = 4.0;
+            else if (score >= 85) gpa = 3.7;
+            else if (score >= 82) gpa = 3.3;
+            else if (score >= 78) gpa = 3.0;
+            else if (score >= 75) gpa = 2.7;
+            else if (score >= 72) gpa = 2.3;
+            else if (score >= 68) gpa = 2.0;
+            else if (score >= 64) gpa = 1.5;
+            else if (score >= 60) gpa = 1.0;
+            else gpa = 0.0;
+            totalGPA += gpa * course.getCredit();
+            totalCredit += course.getCredit();
+        }
+        return totalCredit == 0 ? 0 : totalGPA / totalCredit;
+    }
+
+    private double calculateDGUTGPA(List<Course> courses) {
+        if (courses.isEmpty()) return 0.0;
+        double totalGPA = 0.0;
+        double totalCredit = 0.0;
+        for (Course course : courses) {
+            if (!course.isSelected()) continue;
+            double score = course.getScore();
+            double gpa = (score - 50) / 10;
+            if (gpa < 0) gpa = 0;
+            totalGPA += gpa * course.getCredit();
+            totalCredit += course.getCredit();
+        }
+        return totalCredit == 0 ? 0 : totalGPA / totalCredit;
     }
 
     public static void main(String[] args) {

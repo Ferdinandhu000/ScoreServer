@@ -13,7 +13,7 @@ import javax.swing.JOptionPane;
 public class GPACalculator {
     private final List<Course> courses;
     private static final String EXCEL_FILE = "score.xlsx";
-    private static final String[] HEADERS = {"课程名称", "学分", "成绩", "是否计入GPA", "学期", "课程类型", "是否专业课"};
+    private static final String[] HEADERS = {"课程名称", "学分", "成绩", "是否计入GPA", "学期", "课程类型"};
 
     public GPACalculator() {
         courses = new ArrayList<>();
@@ -174,13 +174,13 @@ public class GPACalculator {
         return totalCredits == 0 ? 0 : totalWeightedGPA / totalCredits;
     }
 
-    // 计算专业课均分
+    // 计算专业课程均分
     public double calculateMajorAverageScore() {
         double totalWeightedScore = 0;
         double totalCredits = 0;
 
         for (Course course : courses) {
-            if (course.isSelected() && course.isMajorCourse()) {
+            if (course.isSelected() && course.getCourseType() == Course.CourseType.MAJOR) {
                 totalWeightedScore += course.getScore() * course.getCredit();
                 totalCredits += course.getCredit();
             }
@@ -189,13 +189,13 @@ public class GPACalculator {
         return totalCredits == 0 ? 0 : totalWeightedScore / totalCredits;
     }
 
-    // 计算必修课均分
-    public double calculateRequiredAverageScore() {
+    // 计算思政课程均分
+    public double calculatePoliticalAverageScore() {
         double totalWeightedScore = 0;
         double totalCredits = 0;
 
         for (Course course : courses) {
-            if (course.isSelected() && course.getCourseType() == Course.CourseType.REQUIRED) {
+            if (course.isSelected() && course.getCourseType() == Course.CourseType.POLITICAL) {
                 totalWeightedScore += course.getScore() * course.getCredit();
                 totalCredits += course.getCredit();
             }
@@ -204,13 +204,13 @@ public class GPACalculator {
         return totalCredits == 0 ? 0 : totalWeightedScore / totalCredits;
     }
 
-    // 计算选修课均分
-    public double calculateElectiveAverageScore() {
+    // 计算素质课程均分
+    public double calculateQualityAverageScore() {
         double totalWeightedScore = 0;
         double totalCredits = 0;
 
         for (Course course : courses) {
-            if (course.isSelected() && course.getCourseType() == Course.CourseType.ELECTIVE) {
+            if (course.isSelected() && course.getCourseType() == Course.CourseType.QUALITY) {
                 totalWeightedScore += course.getScore() * course.getCredit();
                 totalCredits += course.getCredit();
             }
@@ -219,7 +219,7 @@ public class GPACalculator {
         return totalCredits == 0 ? 0 : totalWeightedScore / totalCredits;
     }
 
-    // 计算通识课均分
+    // 计算通识课程均分
     public double calculateGeneralAverageScore() {
         double totalWeightedScore = 0;
         double totalCredits = 0;
@@ -255,9 +255,8 @@ public class GPACalculator {
                         boolean selected = getBooleanCellValue(row.getCell(3));
                         String semester = getStringCellValue(row.getCell(4));
                         Course.CourseType type = Course.CourseType.valueOf(getStringCellValue(row.getCell(5)));
-                        boolean isMajorCourse = getBooleanCellValue(row.getCell(6));
                         
-                        courses.add(new Course(name, credit, score, selected, semester, type, isMajorCourse));
+                        courses.add(new Course(name, credit, score, selected, semester, type));
                     } catch (Exception e) {
                         System.err.println("Error reading row " + i + ": " + e.getMessage());
                     }
@@ -340,10 +339,6 @@ public class GPACalculator {
                 Cell typeCell = row.createCell(5);
                 typeCell.setCellValue(course.getCourseType().name());
                 typeCell.setCellStyle(dataStyle);
-
-                Cell majorCell = row.createCell(6);
-                majorCell.setCellValue(course.isMajorCourse());
-                majorCell.setCellStyle(dataStyle);
             }
             
             // 自动调整列宽

@@ -2,7 +2,7 @@
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>C:\Users\HJ000\Desktop\hj\ScoreServer\target\gpa-calculator-1.1.0-jar-with-dependencies.jar</jar>
+  <jar>C:\Users\HJ000\Desktop\hj\ScoreServer\target\gpa-calculator-1.2.0-jar-with-dependencies.jar</jar>
   <outfile>C:\Users\HJ000\Desktop\hj\ScoreServer\个人成绩管理系统.exe</outfile>
   <errTitle>个人成绩管理系统</errTitle>
   <cmdLine></cmdLine>

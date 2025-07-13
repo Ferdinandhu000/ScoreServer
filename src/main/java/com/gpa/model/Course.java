@@ -10,9 +10,10 @@ public class Course {
     private boolean isMajorCourse; // 是否是专业课
 
     public enum CourseType {
-        REQUIRED("必修"),
-        ELECTIVE("选修"),
-        GENERAL("通识");
+        MAJOR("专业课程"),
+        POLITICAL("思政课程"),
+        QUALITY("素质课程"),
+        GENERAL("通识课程");
 
         private final String displayName;
 
@@ -25,14 +26,13 @@ public class Course {
         }
     }
 
-    public Course(String name, double credit, double score, boolean selected, String semester, CourseType courseType, boolean isMajorCourse) {
+    public Course(String name, double credit, double score, boolean selected, String semester, CourseType courseType) {
         this.name = name;
         this.credit = credit;
         this.score = score;
         this.selected = selected;
         this.semester = semester;
         this.courseType = courseType;
-        this.isMajorCourse = isMajorCourse;
     }
 
     // Getters and Setters
@@ -63,10 +63,9 @@ public class Course {
             name,
             credit,
             score,
-            selected ? "是" : "否",
-            semester,
             courseType.getDisplayName(),
-            isMajorCourse ? "是" : "否"
+            semester,
+            selected ? "是" : "否"
         };
     }
 } 
