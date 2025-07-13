@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch4jConfig>
+  <dontWrapJar>false</dontWrapJar>
+  <headerType>gui</headerType>
+  <jar>C:\Users\HJ000\Desktop\hj\ScoreServer\target\gpa-calculator-1.1.0-jar-with-dependencies.jar</jar>
+  <outfile>C:\Users\HJ000\Desktop\hj\ScoreServer\个人成绩管理系统.exe</outfile>
+  <errTitle>个人成绩管理系统</errTitle>
+  <cmdLine></cmdLine>
+  <chdir>.</chdir>
+  <priority>normal</priority>
+  <downloadUrl>https://adoptium.net/</downloadUrl>
+  <supportUrl></supportUrl>
+  <stayAlive>true</stayAlive>
+  <restartOnCrash>false</restartOnCrash>
+  <manifest></manifest>
+  <icon>icon\icon.ico</icon>
+  <jre>
+    <path>%JAVA_HOME%;%PATH%</path>
+    <requiresJdk>false</requiresJdk>
+    <requires64Bit>false</requires64Bit>
+    <minVersion>1.8.0</minVersion>
+    <maxVersion></maxVersion>
+  </jre>
+  <versionInfo>
+    <fileVersion>1.1.0.0</fileVersion>
+    <txtFileVersion>1.1.0</txtFileVersion>
+    <fileDescription>GPA计算器</fileDescription>
+    <copyright>Your Copyright</copyright>
+    <productVersion>1.1.0.0</productVersion>
+    <txtProductVersion>1.1.0</txtProductVersion>
+    <productName>GPA计算器</productName>
+    <companyName></companyName>
+    <internalName>gpa-calculator</internalName>
+    <originalFilename>GPA计算器.exe</originalFilename>
+    <trademarks></trademarks>
+    <language>ENGLISH_US</language>
+  </versionInfo>
+</launch4jConfig>
