@@ -88,11 +88,15 @@ public class GPACalculator {
                 double score = course.getScore();
                 double gpa;
                 
-                if (score >= 90) gpa = 5.0;
-                else if (score >= 80) gpa = 4.0;
-                else if (score >= 70) gpa = 3.0;
-                else if (score >= 60) gpa = 2.0;
-                else gpa = 1.0;
+                if (score >= 95) gpa = 5.0;
+                else if (score >= 90) gpa = 4.5;
+                else if (score >= 85) gpa = 4.0;
+                else if (score >= 80) gpa = 3.5;
+                else if (score >= 75) gpa = 3.0;
+                else if (score >= 70) gpa = 2.5;
+                else if (score >= 65) gpa = 2.0;
+                else if (score >= 60) gpa = 1.0;
+                else gpa = 0.0;
 
                 totalWeightedGPA += gpa * course.getCredit();
                 totalCredits += course.getCredit();
