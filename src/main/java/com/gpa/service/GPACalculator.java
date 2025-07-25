@@ -13,7 +13,7 @@ import javax.swing.JOptionPane;
 public class GPACalculator {
     private final List<Course> courses;
     private static final String EXCEL_FILE = "score.xlsx";
-    private static final String[] HEADERS = {"课程名称", "学分", "成绩", "是否计入GPA", "学期", "课程类型"};
+    private static final String[] HEADERS = {"课程名称", "学分", "成绩", "课程类型", "学期", "是否计入GPA"};
 
     public GPACalculator() {
         courses = new ArrayList<>();
@@ -256,9 +256,9 @@ public class GPACalculator {
                         String name = getStringCellValue(row.getCell(0));
                         double credit = getNumericCellValue(row.getCell(1));
                         double score = getNumericCellValue(row.getCell(2));
-                        boolean selected = getBooleanCellValue(row.getCell(3));
+                        Course.CourseType type = Course.CourseType.valueOf(getStringCellValue(row.getCell(3)));
                         String semester = getStringCellValue(row.getCell(4));
-                        Course.CourseType type = Course.CourseType.valueOf(getStringCellValue(row.getCell(5)));
+                        boolean selected = getBooleanCellValue(row.getCell(5));
                         
                         courses.add(new Course(name, credit, score, selected, semester, type));
                     } catch (Exception e) {
@@ -332,17 +332,17 @@ public class GPACalculator {
                 scoreCell.setCellValue(course.getScore());
                 scoreCell.setCellStyle(dataStyle);
                 
-                Cell selectedCell = row.createCell(3);
-                selectedCell.setCellValue(course.isSelected());
-                selectedCell.setCellStyle(dataStyle);
+                Cell typeCell = row.createCell(3);
+                typeCell.setCellValue(course.getCourseType().name());
+                typeCell.setCellStyle(dataStyle);
                 
                 Cell semesterCell = row.createCell(4);
                 semesterCell.setCellValue(course.getSemester());
                 semesterCell.setCellStyle(dataStyle);
                 
-                Cell typeCell = row.createCell(5);
-                typeCell.setCellValue(course.getCourseType().name());
-                typeCell.setCellStyle(dataStyle);
+                Cell selectedCell = row.createCell(5);
+                selectedCell.setCellValue(course.isSelected());
+                selectedCell.setCellStyle(dataStyle);
             }
             
             // 自动调整列宽

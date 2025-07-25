@@ -320,14 +320,17 @@ public class MainFrame extends JFrame {
         Course.CourseType selectedType = (Course.CourseType) typeFilter.getSelectedItem();
 
         tableModel.setRowCount(0);
-        int index = 0;
-        for (Course course : calculator.getCourses()) {
+        int displayIndex = 0;
+        for (int i = 0; i < calculator.getCourses().size(); i++) {
+            Course course = calculator.getCourses().get(i);
+            course.setOriginalIndex(i); // 设置原始索引
+            
             boolean matchesSearch = course.getName().toLowerCase().contains(searchText);
             boolean matchesSemester = "全部学期".equals(selectedSemester) || course.getSemester().equals(selectedSemester);
             boolean matchesType = selectedType == null || course.getCourseType() == selectedType;
 
             if (matchesSearch && matchesSemester && matchesType) {
-                tableModel.addRow(course.toTableRow(index++));
+                tableModel.addRow(course.toTableRow(displayIndex++));
             }
         }
     }
@@ -452,17 +455,45 @@ public class MainFrame extends JFrame {
 
     private void toggleSelectedCourse() {
         int selectedRow = courseTable.getSelectedRow();
-        if (selectedRow >= 0) {
-            calculator.toggleCourseSelection(selectedRow);
-            refreshData();
+        if (selectedRow < 0) return;
+
+        // 获取选中行对应的课程
+        String courseName = (String) tableModel.getValueAt(selectedRow, 1); // 课程名称在第2列
+        String courseSemester = (String) tableModel.getValueAt(selectedRow, 5);   // 学期在第6列
+        double credit = Double.parseDouble(tableModel.getValueAt(selectedRow, 2).toString()); // 学分在第3列
+        
+        // 查找对应的原始课程
+        for (int i = 0; i < calculator.getCourses().size(); i++) {
+            Course course = calculator.getCourses().get(i);
+            if (course.getName().equals(courseName) && 
+                course.getSemester().equals(courseSemester) && 
+                course.getCredit() == credit) {
+                calculator.toggleCourseSelection(i);
+                refreshData();
+                break;
+            }
         }
     }
 
     private void deleteSelectedCourse() {
         int selectedRow = courseTable.getSelectedRow();
-        if (selectedRow >= 0) {
-            calculator.removeCourse(selectedRow);
-            refreshData();
+        if (selectedRow < 0) return;
+
+        // 获取选中行对应的课程
+        String courseName = (String) tableModel.getValueAt(selectedRow, 1); // 课程名称在第2列
+        String courseSemester = (String) tableModel.getValueAt(selectedRow, 5);   // 学期在第6列
+        double credit = Double.parseDouble(tableModel.getValueAt(selectedRow, 2).toString()); // 学分在第3列
+        
+        // 查找对应的原始课程
+        for (int i = 0; i < calculator.getCourses().size(); i++) {
+            Course course = calculator.getCourses().get(i);
+            if (course.getName().equals(courseName) && 
+                course.getSemester().equals(courseSemester) && 
+                course.getCredit() == credit) {
+                calculator.removeCourse(i);
+                refreshData();
+                break;
+            }
         }
     }
 
@@ -471,7 +502,29 @@ public class MainFrame extends JFrame {
         int selectedRow = courseTable.getSelectedRow();
         if (selectedRow < 0) return;
 
-        Course course = calculator.getCourses().get(selectedRow);
+        // 获取选中行对应的课程
+        Course selectedCourse = null;
+        int originalIndex = -1;
+        
+        // 查找对应的原始课程
+        String courseName = (String) tableModel.getValueAt(selectedRow, 1); // 课程名称在第2列
+        String courseSemester = (String) tableModel.getValueAt(selectedRow, 5);   // 学期在第6列
+        double credit = Double.parseDouble(tableModel.getValueAt(selectedRow, 2).toString()); // 学分在第3列
+        
+        for (int i = 0; i < calculator.getCourses().size(); i++) {
+            Course c = calculator.getCourses().get(i);
+            if (c.getName().equals(courseName) && 
+                c.getSemester().equals(courseSemester) && 
+                c.getCredit() == credit) {
+                selectedCourse = c;
+                originalIndex = i;
+                break;
+            }
+        }
+        
+        if (selectedCourse == null) return;
+
+        final Course course = selectedCourse;  // 创建final引用
         JDialog dialog = new JDialog(this, "修改课程信息", true);
         dialog.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -527,20 +580,21 @@ public class MainFrame extends JFrame {
         JButton confirmButton = new JButton("确定");
         JButton cancelButton = new JButton("取消");
 
+        final int finalOriginalIndex = originalIndex;
         confirmButton.addActionListener(ae -> {
             try {
                 String name = nameField.getText().trim();
-                double credit = Double.parseDouble(creditField.getText().trim());
+                double creditValue = Double.parseDouble(creditField.getText().trim());
                 double score = Double.parseDouble(scoreField.getText().trim());
-                String semester = semesterField.getText().trim();
+                String newSemester = semesterField.getText().trim();
                 Course.CourseType type = (Course.CourseType) typeComboBox.getSelectedItem();
                 boolean isMajorCourse = majorCourseBox.isSelected();
 
-                if (name.isEmpty() || semester.isEmpty()) {
+                if (name.isEmpty() || newSemester.isEmpty()) {
                     JOptionPane.showMessageDialog(dialog, "课程名称和学期不能为空！");
                     return;
                 }
-                if (credit <= 0) {
+                if (creditValue <= 0) {
                     JOptionPane.showMessageDialog(dialog, "学分必须大于0！");
                     return;
                 }
@@ -550,14 +604,14 @@ public class MainFrame extends JFrame {
                 }
 
                 course.setName(name);
-                course.setCredit(credit);
+                course.setCredit(creditValue);
                 course.setScore(score);
                 course.setSelected(selectedBox.isSelected());
-                course.setSemester(semester);
+                course.setSemester(newSemester);
                 course.setCourseType(type);
                 course.setMajorCourse(isMajorCourse);
 
-                calculator.updateCourse(selectedRow, course);
+                calculator.updateCourse(finalOriginalIndex, course);
                 updateSemesterList();
                 refreshData();
                 dialog.dispose();

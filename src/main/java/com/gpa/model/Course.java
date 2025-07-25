@@ -8,6 +8,7 @@ public class Course {
     private String semester; // 学期
     private CourseType courseType; // 课程类型
     private boolean isMajorCourse; // 是否是专业课
+    private int originalIndex; // 添加原始索引字段
 
     public enum CourseType {
         MAJOR("专业课程"),
@@ -33,6 +34,7 @@ public class Course {
         this.selected = selected;
         this.semester = semester;
         this.courseType = courseType;
+        this.originalIndex = -1; // 初始化为-1
     }
 
     // Getters and Setters
@@ -57,9 +59,13 @@ public class Course {
     public boolean isMajorCourse() { return isMajorCourse; }
     public void setMajorCourse(boolean majorCourse) { isMajorCourse = majorCourse; }
 
-    public Object[] toTableRow(int index) {
+    public int getOriginalIndex() { return originalIndex; }
+    public void setOriginalIndex(int originalIndex) { this.originalIndex = originalIndex; }
+
+    // 添加toTableRow方法
+    public Object[] toTableRow(int displayIndex) {
         return new Object[]{
-            index + 1,
+            displayIndex + 1,
             name,
             credit,
             score,
